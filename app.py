@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 import streamlit as st
 from langchain_core.prompts import PromptTemplate, load_prompt
@@ -6,15 +5,11 @@ import edge_tts
 import asyncio
 
 
-load_dotenv()
-
-llm = ChatOpenAI(
-    model="meta-llama/llama-3.3-70b-instruct:free",
-    openai_api_base="https://openrouter.ai/api/v1",
-)
 
 
 st.header('Research Tool')
+
+llm_key = st.text_input('Your open AI api key')
 
 paper_input = st.text_input('Enter the name of the Research Paper')
 
@@ -51,6 +46,16 @@ async def generate_audio(text, voice, file_path):
 
 
 if st.button('Summarize'):
+
+    if not llm_key:
+        st.error('Please enter your open AI api key')
+
+    llm = ChatOpenAI(
+        model="meta-llama/llama-3.3-70b-instruct:free",
+        openai_api_base="https://openrouter.ai/api/v1", 
+        openai_api_key = llm_key
+    )
+    
     chain = template | llm
     result = chain.invoke({
         'paper_input':paper_input,
